@@ -17,7 +17,6 @@ namespace SMTPServerTesting
             return Task.FromResult(CheckUserAndPassword(user, password));
         }
 
-
         public IUserAuthenticator CreateInstance(ISessionContext context)
         {
             return new UserAuthenticatorChecker();
@@ -30,7 +29,7 @@ namespace SMTPServerTesting
 
         static bool CheckUserAndPassword(string user, string password)
         {
-            foreach (KeyValuePair<string, string> account in AccountList)
+            foreach (KeyValuePair<string, string> account in AccountList!)
             {
                 if (account.Key.Equals(user) && account.Value.Equals(password))
                 {

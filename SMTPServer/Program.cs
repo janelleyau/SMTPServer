@@ -10,12 +10,10 @@ namespace SMTPServerTesting
         static int ReceivePort { get; set; }
         public static string? AccountFile { get; set; }
 
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            //SetProperties(args);   
-            //ReadAndMapAccountFile();
-            var something = @"C:\Users\janelle.yau\OneDrive - WiseTech Global Pty Ltd\Documents\accountInfo.txt";
-            ReadAndMapAccountFile(something);
+            SetProperties(args);
+            ReadAndMapAccountFile();
 
             var cancellationTokenSource = new CancellationTokenSource();
 
@@ -23,21 +21,28 @@ namespace SMTPServerTesting
             .ServerName("localhost")
             .Endpoint(builder =>
                     builder
-                        .Port(30, true)
+                        .Port(SendPort, true)
+                        .AuthenticationRequired(true)
+                        .AllowUnsecureAuthentication(true)
+                       )
+            .Endpoint(builder =>
+                    builder
+                        .Port(ReceivePort, true)
                         .AuthenticationRequired(true)
                         .AllowUnsecureAuthentication(true)
                        )
                     .Build();
+            
 
             var serviceProvider = new ServiceProvider();
             serviceProvider.Add(new MessageStorage(Console.Out));
             serviceProvider.Add(new UserAuthenticatorChecker());
 
             var smtpServer = new SmtpServer.SmtpServer(options, serviceProvider);
-            smtpServer.SessionCreated += OnSessionCreated;
-            smtpServer.SessionFaulted += OnSessionFaulted;
-            smtpServer.SessionCancelled += OnSessionCancelled;
-            smtpServer.SessionCompleted += OnSessionCompleted;
+            smtpServer.SessionCreated += OnSessionCreated!;
+            smtpServer.SessionFaulted += OnSessionFaulted!;
+            smtpServer.SessionCancelled += OnSessionCancelled!;
+            smtpServer.SessionCompleted += OnSessionCompleted!;
 
             //await smtpServer.StartAsync(CancellationToken.None);
 
@@ -56,7 +61,7 @@ namespace SMTPServerTesting
         {
             Console.WriteLine("Session Created.");
 
-            e.Context.CommandExecuting += OnCommandExecuting;
+            e.Context.CommandExecuting += OnCommandExecuting!;
         }
 
         static void OnCommandExecuting(object sender, SmtpCommandEventArgs e)
@@ -81,9 +86,9 @@ namespace SMTPServerTesting
             Console.WriteLine("Session Completed");
         }
 
-        static void ReadAndMapAccountFile(string dfd)
+        static void ReadAndMapAccountFile()
         {
-            var lines = File.ReadAllLines(dfd);
+            var lines = File.ReadAllLines(AccountFile!);
             UserAuthenticatorChecker.SetAccountList(lines);
         }
 

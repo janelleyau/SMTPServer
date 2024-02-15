@@ -44,8 +44,6 @@ namespace SMTPServerTesting
             smtpServer.SessionCancelled += OnSessionCancelled!;
             smtpServer.SessionCompleted += OnSessionCompleted!;
 
-            //await smtpServer.StartAsync(CancellationToken.None);
-
             var serverTask = smtpServer.StartAsync(cancellationTokenSource.Token);
 
             Console.WriteLine("Server Started. Press any key to cancel the server.");
